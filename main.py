@@ -9,12 +9,13 @@ import cv2
 from src.read_dir_images import ImgsInDirAsBool
 import pandas as pd
 # %%
-df_xgboost = pd.read_pickle('./pandas_df_connected_xgboost.pkl')
+df_xgboost = pd.read_pickle('./pandas_df_connected_ignore_analsys.pkl')
 df_xgboost.head()
-
 # %%
-true_files = ImgsInDirAsBool('./images/hard/true', bool_switch=True)
-false_files = ImgsInDirAsBool('./images/hard/false', bool_switch=True)
+df_xgboost[df_xgboost['true'] == True]
+# %%
+true_files = ImgsInDirAsBool('./images/pin/true', bool_switch=True)
+false_files = ImgsInDirAsBool('./images/pin/false', bool_switch=True)
 
 # %%
 
@@ -30,6 +31,10 @@ def display_cv(image, format='.bmp', bool_switch=False):
 output_folder = 'result'
 confirm_make_folder(output_folder)
 # %%
+drop_list = [181, 182, 184, 187, 195, 196, 197, 207, 209, 212, 213, 214]
+drop_list = [i+1 for i in drop_list]
+drop_list
+# %%
 for num, (true, false, img_name) in enumerate(
         zip(true_files.read_files(),
             false_files.read_files(),
@@ -43,8 +48,9 @@ for num, (true, false, img_name) in enumerate(
     xgboost_adapt_bool = np.zeros([labels.shape[0], labels.shape[1]], dtype=bool)
     for i in range(1, nlabels):
         xgboost_adapt_bools[:, :, i-1] = np.where(labels == i, True, False)
-    for i in range(nlabels-1):
-        if df_xgboost_part['xgboost_result'].iloc[i] == False:
+    xgboost_adapt_bools = np.delete(xgboost_adapt_bools, drop_list, axis=2)
+    for i in range(nlabels-1-len(drop_list)):
+        if (df_xgboost_part['xgboost_result'].iloc[i] == False) & (df_xgboost_part['svm_result'].iloc[i] == False):
             xgboost_adapt_bool = np.logical_or(xgboost_adapt_bool, xgboost_adapt_bools[:, :, i])
     # display_cv(true_or_false, bool_switch=True)
     true_or_false = np.logical_and(true_or_false, np.logical_not(xgboost_adapt_bool))
