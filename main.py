@@ -9,7 +9,7 @@ import cv2
 from src.read_dir_images import ImgsInDirAsBool
 import pandas as pd
 # %%
-df_xgboost = pd.read_pickle('./pandas_df_connected_ignore_analsys.pkl')
+df_xgboost = pd.read_pickle('./pandas_df_connected_diff_ignore_analsys.pkl')
 df_xgboost.head()
 # %%
 df_xgboost[df_xgboost['true'] == True]
